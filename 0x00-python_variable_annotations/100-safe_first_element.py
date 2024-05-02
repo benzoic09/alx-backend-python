@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """add duck-typed annotated """
-from typing import Any, sequence, Union
+from typing import Any, Sequence, Union
 
 
 def safe_first_element(lst:  Sequence[Any]) -> Union[Any, None]:
