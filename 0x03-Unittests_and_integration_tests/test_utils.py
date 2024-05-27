@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
 from utils import access_nested_map, get_json, memoize
+from client import GithubOrgClient
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -13,15 +14,15 @@ class TestAccessNestedMap(unittest.TestCase):
         ({"a": 1}, ("a",), 1),
         ({"a": {"b": 2}}, ("a",), {"b": 2}),
         ({"a": {"b": 2}}, ("a", "b"), 2),
-        ])
+    ])
     def test_access_nested_map(self, nested_map, path, expected):
         """Test that access_nested_map returns the expected results"""
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
     @parameterized.expand([
         ({}, ("a",)),
-        ({"a": 1}, ("a", "b"))
-        ])
+        ({"a": 1}, ("a", "b")),
+    ])
     def test_access_nested_map_exception(self, nested_map, path):
         """Test that access_nested_map raises KeyError as expected"""
         with self.assertRaises(KeyError) as cm:
@@ -35,7 +36,7 @@ class TestGetJson(unittest.TestCase):
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False}),
-        ])
+    ])
     def test_get_json(self, test_url, test_payload):
         """Test that get_json returns the expected result"""
         with patch('utils.requests.get') as mock_get:
@@ -63,7 +64,7 @@ class TestMemoize(unittest.TestCase):
     def test_memoize(self):
         """Test memoize decorator"""
         with patch.object(
-                TestClass, 'a_method', return_value=42)as mock_method:
+                TestClass, 'a_method', return_value=42) as mock_method:
             test_instance = TestClass()
 
             # Call a_property twice
@@ -76,6 +77,24 @@ class TestMemoize(unittest.TestCase):
 
             # Ensure a_method was called only once
             mock_method.assert_called_once()
+
+
+class TestGithubOrgClient(unittest.TestCase):
+    """TestGithubOrgClient class to test GithubOrgClient"""
+
+    @parameterized.expand([
+        ("google", {"login": "google"}),
+        ("abc", {"login": "abc"}),
+    ])
+    @patch('client.get_json')
+    def test_org(self, org_name, expected, mock_get_json):
+        """Test that GithubOrgClient.org returns the correct value"""
+        mock_get_json.return_value = expected
+        client = GithubOrgClient(org_name)
+        result = client.org
+        mock_get_json.assert_called_once_with(
+                f"https://api.github.com/orgs/{org_name}")
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":
