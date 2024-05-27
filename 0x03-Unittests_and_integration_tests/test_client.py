@@ -22,6 +22,25 @@ class TestGithubOrgClient(unittest.TestCase):
                 f"https://api.github.com/orgs/{org_name}")
         self.assertEqual(result, expected)
 
+@patch('client.get_json')
+    def test_public_repos(self, mock_json):
+        """Test TestGithubOrgClient.test_public_repos
+        return the correct value
+        """
+        payloads = [{"name": "google"}, {"name": "Twitter"}]
+        mock_json.return_value = payloads
+
+        with patch('client.GithubOrgClient._public_repos_url') as mock_public:
+            mock_public.return_value = "hey there!"
+            test_class = GithubOrgClient('test')
+            result = test_class.public_repos()
+
+            expected = [p["name"] for p in payloads]
+            self.assertEqual(result, expected)
+
+            mock_json.called_with_once()
+            mock_public.called_with_once()
+
 
 if __name__ == "__main__":
     unittest.main()
