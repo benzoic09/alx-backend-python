@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
+"""unittest"""
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
 from client import GithubOrgClient
+
 
 class TestGithubOrgClient(unittest.TestCase):
     """TestGithubOrgClient class to test GithubOrgClient"""
@@ -15,8 +18,10 @@ class TestGithubOrgClient(unittest.TestCase):
         """Test that GithubOrgClient.org returns the correct value"""
         client = GithubOrgClient(org_name)
         result = client.org
-        mock_get_json.assert_called_once_with(f"https://api.github.com/orgs/{org_name}")
+        mock_get_json.assert_called_once_with(
+                f"https://api.github.com/orgs/{org_name}")
         self.assertEqual(result, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
